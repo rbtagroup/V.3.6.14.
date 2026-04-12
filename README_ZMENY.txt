@@ -16,3 +16,15 @@ Audit opravy 3.6.10:
 - doplněno vysvětlení Přístavného: vyjímá se z provize, ale zůstává k odevzdání
 - doplněna základní PWA metadata a lepší ovládání dialogu nastavení
 - přidán spustitelný výpočetní self-test: node vypocet-selftest.js
+
+Opravy 3.6.11:
+- odstraněn CSS color-mix z placeholderů kvůli kompatibilitě s html2canvas exportem
+- validační a exportní chyby se ukazují v hlášce v aplikaci místo alertů
+- tlačítka exportu se během přípravy výstupu dočasně vypnou
+- nová cache verze service workeru pro načtení opraveného exportu
+
+Vzhled 3.6.12:
+- kompaktnější formulář: nižší pole, tlačítka, menší paddingy a radiusy
+- zmenšený header, logo a hlavní karty
+- zjemněné stíny a snížená výška spodního dashboardu
+- mobilní ovládání ponecháno nad cca 44 px pro pohodlné klepnutí

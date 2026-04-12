@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const VERSION = "3.6.10-audit-fixes";
+  const VERSION = "3.6.12-compact-polish";
   const CONFIG_KEYS = {
     commRate: "rb_commRate",
     baseFull: "rb_baseFull",
@@ -45,6 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
     settingsModal: document.getElementById("settingsModal"),
     pwaBanner: document.getElementById("pwaBanner"),
     installPwaBtn: document.getElementById("installPwaBtn"),
+    appNotice: document.getElementById("appNotice"),
     kmReal: document.getElementById("kmReal"),
     headerStatus: document.getElementById("headerStatus"),
     headerStatusText: document.getElementById("headerStatusText"),
@@ -154,6 +155,18 @@ document.addEventListener("DOMContentLoaded", () => {
       URL.revokeObjectURL(url);
       anchor.remove();
     }, 1000);
+  }
+
+  function showNotice(message, tone = "neutral") {
+    if (!el.appNotice) return;
+    el.appNotice.textContent = message;
+    el.appNotice.classList.remove("hidden", "is-good", "is-bad");
+    if (tone === "good") el.appNotice.classList.add("is-good");
+    if (tone === "bad") el.appNotice.classList.add("is-bad");
+  }
+
+  function clearNotice() {
+    el.appNotice?.classList.add("hidden");
   }
 
   async function captureElementCanvas(node, scale = Math.max(2, Math.floor(window.devicePixelRatio || 2)), backgroundColor = null) {
@@ -774,7 +787,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const baseHalf = getNumber("setHalf");
 
       if (commRate <= 0 || commRate > 100 || baseFull < 0 || baseHalf < 0) {
-        alert("Zkontroluj nastavení. Provize musí být 1–100 % a fixy nesmí být záporné.");
+        showNotice("Zkontroluj nastavení. Provize musí být 1–100 % a fixy nesmí být záporné.", "bad");
         return;
       }
 
@@ -787,6 +800,7 @@ document.addEventListener("DOMContentLoaded", () => {
       markReportDirty();
       updateHeroConfig();
       updateLivePreview();
+      showNotice("Nastavení výpočtu je uložené.", "good");
     });
 
     el.settingsModal?.addEventListener("click", (event) => {
@@ -848,21 +862,25 @@ document.addEventListener("DOMContentLoaded", () => {
       const validationError = validate(values);
 
       if (validationError) {
-        alert(validationError);
+        showNotice(validationError, "bad");
         return;
       }
 
+      clearNotice();
       renderReport(computeMetrics(values));
+      showNotice("Výčetka je vypočítaná a připravená k exportu.", "good");
     });
 
     FIELD_IDS.forEach((id) => {
       const field = document.getElementById(id);
       field?.addEventListener("input", () => {
         markReportDirty();
+        clearNotice();
         updateLivePreview();
       });
       field?.addEventListener("change", () => {
         markReportDirty();
+        clearNotice();
         updateLivePreview();
       });
     });
@@ -877,18 +895,28 @@ document.addEventListener("DOMContentLoaded", () => {
 
     el.shareImgBtn?.addEventListener("click", async () => {
       try {
+        el.shareImgBtn.disabled = true;
+        showNotice("Připravuji obrázek výčetky...", "neutral");
         await shareReportImage();
+        showNotice("Obrázek výčetky je připravený.", "good");
       } catch (error) {
         if (error?.name === "AbortError") return;
-        alert(`Sdílení obrázku selhalo: ${error.message || error}`);
+        showNotice(`Sdílení obrázku selhalo: ${error.message || error}`, "bad");
+      } finally {
+        el.shareImgBtn.disabled = false;
       }
     });
 
     el.pdfBtn?.addEventListener("click", async () => {
       try {
+        el.pdfBtn.disabled = true;
+        showNotice("Připravuji PDF výčetky...", "neutral");
         await exportPdf();
+        showNotice("PDF výčetky je připravené.", "good");
       } catch (error) {
-        alert(`Export do PDF selhal: ${error.message || error}`);
+        showNotice(`Export do PDF selhal: ${error.message || error}`, "bad");
+      } finally {
+        el.pdfBtn.disabled = false;
       }
     });
   }
