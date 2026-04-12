@@ -1,7 +1,10 @@
 {
+  "id": "./",
   "name": "RB TAXI – Výčetka",
   "short_name": "RB TAXI",
+  "description": "Výpočet a export výčetky řidiče RB TAXI.",
   "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#08132b",
   "theme_color": "#0b1738",

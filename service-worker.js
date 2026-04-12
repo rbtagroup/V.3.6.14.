@@ -1,9 +1,11 @@
-const CACHE_NAME = 'rb-taxi-vycetka-v3-6-14-share3610-version-footer';
+const CACHE_NAME = 'rb-taxi-vycetka-v3-6-10-audit-fixes';
 const APP_SHELL = [
   './',
   './index.html',
   './style.css',
   './app.js',
+  './vendor/html2canvas.min.js',
+  './vendor/jspdf.umd.min.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

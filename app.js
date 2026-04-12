@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-  const VERSION = "3.6.14-share3610-version-footer";
+  const VERSION = "3.6.10-audit-fixes";
   const CONFIG_KEYS = {
     commRate: "rb_commRate",
     baseFull: "rb_baseFull",
@@ -72,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
     setHalf: document.getElementById("setHalf"),
     saveSettingsBtn: document.getElementById("saveSettingsBtn"),
     closeSettingsBtn: document.getElementById("closeSettingsBtn"),
-    appVersion: document.getElementById("appVersion"),
   };
 
   const FIELD_IDS = [
@@ -94,6 +93,7 @@ document.addEventListener("DOMContentLoaded", () => {
   let deferredPrompt = null;
   let lastRenderedData = null;
   let isCalculated = false;
+  let lastFocusedBeforeSettings = null;
 
   function getText(id) {
     return document.getElementById(id)?.value?.trim() || "";
@@ -173,16 +173,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  function readPositiveNumber(key, fallback) {
+  function readNumberByRule(key, fallback, isValid) {
     const value = Number(localStorage.getItem(key));
-    return Number.isFinite(value) && value > 0 ? value : fallback;
+    return Number.isFinite(value) && isValid(value) ? value : fallback;
   }
 
   function getConfig() {
     return {
-      commRate: readPositiveNumber(CONFIG_KEYS.commRate, DEFAULTS.commRate),
-      baseFull: readPositiveNumber(CONFIG_KEYS.baseFull, DEFAULTS.baseFull),
-      baseHalf: readPositiveNumber(CONFIG_KEYS.baseHalf, DEFAULTS.baseHalf),
+      commRate: readNumberByRule(CONFIG_KEYS.commRate, DEFAULTS.commRate, (value) => value > 0 && value <= 100),
+      baseFull: readNumberByRule(CONFIG_KEYS.baseFull, DEFAULTS.baseFull, (value) => value >= 0),
+      baseHalf: readNumberByRule(CONFIG_KEYS.baseHalf, DEFAULTS.baseHalf, (value) => value >= 0),
     };
   }
 
@@ -309,6 +309,13 @@ document.addEventListener("DOMContentLoaded", () => {
         setFieldError(id);
         return `${FRIENDLY_NAMES[id]} musí být celé číslo.`;
       }
+    }
+
+    const metrics = computeMetrics(values);
+    if (metrics.invoiceKm > metrics.kmReal) {
+      setFieldError("iacCount");
+      setFieldError("shkmCount");
+      return `Smluvní km (${formatNumber(metrics.invoiceKm)}) jsou vyšší než najeté km (${formatNumber(metrics.kmReal)}).`;
     }
 
     return "";
@@ -719,12 +726,6 @@ document.addEventListener("DOMContentLoaded", () => {
     pdf.save(`RB-TAXI-vycetka-${VERSION}.pdf`);
   }
 
-  function renderAppVersion() {
-    if (!el.appVersion) return;
-    el.appVersion.textContent = `Verze aplikace ${VERSION}`;
-    el.appVersion.setAttribute("title", `Aktuální verze: ${VERSION}`);
-  }
-
   function updateThemeButton() {
     if (!el.themeToggle) return;
     const isLight = document.body.classList.contains("light-mode");
@@ -747,16 +748,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function initSettings() {
+    const closeSettings = () => {
+      el.settingsModal?.classList.add("hidden");
+      lastFocusedBeforeSettings?.focus?.();
+      lastFocusedBeforeSettings = null;
+    };
+
     el.settingsBtn?.addEventListener("click", () => {
       const config = getConfig();
+      lastFocusedBeforeSettings = document.activeElement;
       if (el.setComm) el.setComm.value = String(config.commRate);
       if (el.setFull) el.setFull.value = String(config.baseFull);
       if (el.setHalf) el.setHalf.value = String(config.baseHalf);
       el.settingsModal?.classList.remove("hidden");
+      el.setComm?.focus();
     });
 
     el.closeSettingsBtn?.addEventListener("click", () => {
-      el.settingsModal?.classList.add("hidden");
+      closeSettings();
     });
 
     el.saveSettingsBtn?.addEventListener("click", () => {
@@ -773,6 +782,8 @@ document.addEventListener("DOMContentLoaded", () => {
       localStorage.setItem(CONFIG_KEYS.baseFull, String(baseFull));
       localStorage.setItem(CONFIG_KEYS.baseHalf, String(baseHalf));
       el.settingsModal?.classList.add("hidden");
+      lastFocusedBeforeSettings?.focus?.();
+      lastFocusedBeforeSettings = null;
       markReportDirty();
       updateHeroConfig();
       updateLivePreview();
@@ -780,7 +791,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     el.settingsModal?.addEventListener("click", (event) => {
       if (event.target === el.settingsModal) {
-        el.settingsModal.classList.add("hidden");
+        closeSettings();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !el.settingsModal?.classList.contains("hidden")) {
+        closeSettings();
       }
     });
   }
@@ -881,7 +898,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initPwaPrompt();
   registerServiceWorker();
   updateHeroConfig();
-  renderAppVersion();
   bindEvents();
   updateLivePreview();
 });

@@ -14,8 +14,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet" />
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="vendor/html2canvas.min.js"></script>
+  <script defer src="vendor/jspdf.umd.min.js"></script>
   <script defer src="app.js"></script>
 </head>
 <body>
@@ -148,13 +148,13 @@
 
         <div class="section-heading">Finance</div>
         <div class="form-grid form-grid-2">
-          <label><span class="label-text"><svg class="icon"><use href="#icon-cash"></use></svg> Tržba (Kč)</span><input type="number" id="trzba" required /></label>
-          <label><span class="label-text"><svg class="icon"><use href="#icon-flag"></use></svg> Přístavné (Kč)</span><input type="number" id="pristavne" /></label>
-          <label><span class="label-text"><svg class="icon"><use href="#icon-fuel"></use></svg> Palivo (Kč)</span><input type="number" id="palivo" /></label>
-          <label><span class="label-text"><svg class="icon"><use href="#icon-wash"></use></svg> Mytí (Kč)</span><input type="number" id="myti" /></label>
-          <label><span class="label-text"><svg class="icon"><use href="#icon-card"></use></svg> Kartou (Kč)</span><input type="number" id="kartou" /></label>
-          <label><span class="label-text"><svg class="icon"><use href="#icon-doc"></use></svg> Fakturou (Kč)</span><input type="number" id="fakturou" /></label>
-          <label><span class="label-text"><svg class="icon"><use href="#icon-doc"></use></svg> Jiné (Kč)</span><input type="number" id="jine" /></label>
+          <label><span class="label-text"><svg class="icon"><use href="#icon-cash"></use></svg> Tržba (Kč)</span><input type="number" id="trzba" min="0" step="1" inputmode="numeric" required /></label>
+          <label><span class="label-text"><svg class="icon"><use href="#icon-flag"></use></svg> Přístavné (Kč)</span><input type="number" id="pristavne" min="0" step="1" inputmode="numeric" aria-describedby="pristavneHelp" /><small id="pristavneHelp" class="field-hint">Přístavné se nepočítá do provize řidiče, ale zůstává v částce k odevzdání.</small></label>
+          <label><span class="label-text"><svg class="icon"><use href="#icon-fuel"></use></svg> Palivo (Kč)</span><input type="number" id="palivo" min="0" step="1" inputmode="numeric" /></label>
+          <label><span class="label-text"><svg class="icon"><use href="#icon-wash"></use></svg> Mytí (Kč)</span><input type="number" id="myti" min="0" step="1" inputmode="numeric" /></label>
+          <label><span class="label-text"><svg class="icon"><use href="#icon-card"></use></svg> Kartou (Kč)</span><input type="number" id="kartou" min="0" step="1" inputmode="numeric" /></label>
+          <label><span class="label-text"><svg class="icon"><use href="#icon-doc"></use></svg> Fakturou (Kč)</span><input type="number" id="fakturou" min="0" step="1" inputmode="numeric" /></label>
+          <label><span class="label-text"><svg class="icon"><use href="#icon-doc"></use></svg> Jiné (Kč)</span><input type="number" id="jine" min="0" step="1" inputmode="numeric" /></label>
         </div>
 
         <div class="section-heading">Smluvní jízdy</div>
@@ -233,26 +233,22 @@
     </section>
   </main>
 
-  <footer class="app-footer">
-    <div id="appVersion" class="app-version" aria-label="Verze aplikace"></div>
-  </footer>
-
-  <div id="settingsModal" class="hidden modal-overlay">
+  <div id="settingsModal" class="hidden modal-overlay" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
     <div class="modal-content">
       <div class="modal-badge">Parametry výpočtu</div>
-      <h2>Nastavení výpočtu</h2>
+      <h2 id="settingsTitle">Nastavení výpočtu</h2>
       <p class="modal-text">Uprav provizi a fixy. Změny se hned promítnou do živého přehledu i finální výčetky.</p>
       <label>
         <span class="label-text"><svg class="icon"><use href="#icon-cash"></use></svg> Provize z tržby (%)</span>
-        <input type="number" id="setComm" step="1" />
+        <input type="number" id="setComm" min="1" max="100" step="1" inputmode="numeric" />
       </label>
       <label>
         <span class="label-text"><svg class="icon"><use href="#icon-cash"></use></svg> Fix plná směna (Kč)</span>
-        <input type="number" id="setFull" step="10" />
+        <input type="number" id="setFull" min="0" step="10" inputmode="numeric" />
       </label>
       <label>
         <span class="label-text"><svg class="icon"><use href="#icon-cash"></use></svg> Fix 1/2 směna (Kč)</span>
-        <input type="number" id="setHalf" step="10" />
+        <input type="number" id="setHalf" min="0" step="10" inputmode="numeric" />
       </label>
       <div class="modal-actions">
         <button id="saveSettingsBtn" class="primary" type="button">Uložit</button>
