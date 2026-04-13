@@ -46,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
     pwaBanner: document.getElementById("pwaBanner"),
     installPwaBtn: document.getElementById("installPwaBtn"),
     appNotice: document.getElementById("appNotice"),
+    appVersion: document.getElementById("appVersion"),
     kmReal: document.getElementById("kmReal"),
     headerStatus: document.getElementById("headerStatus"),
     headerStatusText: document.getElementById("headerStatusText"),
@@ -925,6 +926,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initSettings();
   initPwaPrompt();
   registerServiceWorker();
+  if (el.appVersion) el.appVersion.textContent = `Verze ${VERSION}`;
   updateHeroConfig();
   bindEvents();
   updateLivePreview();

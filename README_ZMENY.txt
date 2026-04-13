@@ -28,3 +28,4 @@ Vzhled 3.6.12:
 - zmenšený header, logo a hlavní karty
 - zjemněné stíny a snížená výška spodního dashboardu
 - mobilní ovládání ponecháno nad cca 44 px pro pohodlné klepnutí
+- v hlavičce aplikace se zobrazuje aktuální verze
